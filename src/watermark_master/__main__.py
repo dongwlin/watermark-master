@@ -19,27 +19,27 @@ class MainWindow(QtWidgets.QWidget):
         self.preview_label = QtWidgets.QLabel(self)
         layout.addWidget(self.preview_label)
 
-        self.btn_open = QtWidgets.QPushButton("Open Images", self)
-        self.btn_open.clicked.connect(self.open_images)
-        layout.addWidget(self.btn_open)
+        self.open_btn = QtWidgets.QPushButton("Open Images", self)
+        self.open_btn.clicked.connect(self.open_images)
+        layout.addWidget(self.open_btn)
 
         watermark_layout = QtWidgets.QHBoxLayout()
         self.watermark_input = QtWidgets.QLineEdit(self)
         self.watermark_input.setPlaceholderText("watermark")
         watermark_layout.addWidget(self.watermark_input)
 
-        self.btn_preview_watermark = QtWidgets.QPushButton("Preview", self)
-        self.btn_preview_watermark.clicked.connect(self.preview_watermark)
-        watermark_layout.addWidget(self.btn_preview_watermark)
+        self.preview_watermark_btn = QtWidgets.QPushButton("Preview", self)
+        self.preview_watermark_btn.clicked.connect(self.preview_watermark)
+        watermark_layout.addWidget(self.preview_watermark_btn)
 
-        self.btn_add_watermark = QtWidgets.QPushButton("Add", self)
-        self.btn_add_watermark.clicked.connect(self.add_watermarks)
-        watermark_layout.addWidget(self.btn_add_watermark)
+        self.add_watermark_btn = QtWidgets.QPushButton("Add", self)
+        self.add_watermark_btn.clicked.connect(self.add_watermarks)
+        watermark_layout.addWidget(self.add_watermark_btn)
         layout.addLayout(watermark_layout)
 
-        self.btn_rename = QtWidgets.QPushButton("Rename Images", self)
-        self.btn_rename.clicked.connect(self.renameImages)
-        layout.addWidget(self.btn_rename)
+        self.rename_btn = QtWidgets.QPushButton("Rename Images", self)
+        self.rename_btn.clicked.connect(self.renameImages)
+        layout.addWidget(self.rename_btn)
 
         self.setLayout(layout)
 
