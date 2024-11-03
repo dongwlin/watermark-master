@@ -50,7 +50,9 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_layout.addWidget(self.watermark_size_label)
 
         self.watermark_size_input = QtWidgets.QLineEdit(self)
-        watermark_size_validator = QtGui.QDoubleValidator(0, 1000, 2, self.watermark_size_input)
+        watermark_size_validator = QtGui.QDoubleValidator(
+            0, 1000, 2, self.watermark_size_input
+        )
         self.watermark_size_input.setValidator(watermark_size_validator)
         self.watermark_size_input.setText("20")
         self.watermark_layout.addWidget(self.watermark_size_input)
@@ -65,9 +67,10 @@ class MainWindow(QtWidgets.QWidget):
         self.add_watermark_btn.clicked.connect(self.add_watermarks)
         self.watermark_layout.addWidget(self.add_watermark_btn)
 
-
     def open_images(self) -> None:
-        self.file_paths, _ = QtWidgets.QFileDialog.getOpenFileNames(self, "Select Images", "", "Image Files (*.png *.jpg *.bmp)")
+        self.file_paths, _ = QtWidgets.QFileDialog.getOpenFileNames(
+            self, "Select Images", "", "Image Files (*.png *.jpg *.bmp)"
+        )
         if self.file_paths:
             self.preview_image(self.file_paths[0])
 
@@ -78,13 +81,22 @@ class MainWindow(QtWidgets.QWidget):
 
     def preview_image(self, filePath: str) -> None:
         pixmap = QtGui.QPixmap(filePath)
-        self.preview_label.setPixmap(pixmap.scaled(self.preview_label.size(), aspectMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio))
+        self.preview_label.setPixmap(
+            pixmap.scaled(
+                self.preview_label.size(),
+                aspectMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+            )
+        )
 
     def preview_watermark(self):
         image = self.add_watermark(self.file_paths[0])
-        pixmap  = ImageQt.toqpixmap(image)
-        self.preview_label.setPixmap(pixmap.scaled(self.preview_label.size(), aspectMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio))
-
+        pixmap = ImageQt.toqpixmap(image)
+        self.preview_label.setPixmap(
+            pixmap.scaled(
+                self.preview_label.size(),
+                aspectMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+            )
+        )
 
     def add_watermark(self, img_path: str) -> ImageFile.ImageFile:
         image = Image.open(img_path)
@@ -107,7 +119,7 @@ class MainWindow(QtWidgets.QWidget):
         _, file_name = os.path.split(filePath)
         name, ext = os.path.splitext(file_name)
         return name, ext
-    
+
     def create_new_file_path(self, filePath: str, newFileName: str) -> str:
         dirName, _ = os.path.split(filePath)
         newFilePath = os.path.join(dirName, newFileName)
@@ -121,11 +133,13 @@ class MainWindow(QtWidgets.QWidget):
             os.rename(file_path, newFilePath)
             self.file_paths[i] = newFilePath
 
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     main()
