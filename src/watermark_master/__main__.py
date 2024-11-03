@@ -16,6 +16,8 @@ class MainWindow(QtWidgets.QWidget):
     def setup_ui(self) -> None:
         layout = QtWidgets.QVBoxLayout()
 
+        self.images_opened = False
+
         self.preview_label = QtWidgets.QLabel(self)
         layout.addWidget(self.preview_label)
 
@@ -28,6 +30,7 @@ class MainWindow(QtWidgets.QWidget):
         layout.addLayout(self.watermark_layout)
 
         self.rename_btn = QtWidgets.QPushButton("Rename Images", self)
+        self.rename_btn.setDisabled(True)
         self.rename_btn.clicked.connect(self.renameImages)
         layout.addWidget(self.rename_btn)
 
@@ -38,7 +41,7 @@ class MainWindow(QtWidgets.QWidget):
 
         self.watermark_label = QtWidgets.QLabel("watermark")
         self.watermark_layout.addWidget(self.watermark_label)
-        
+
         self.watermark_input = QtWidgets.QLineEdit(self)
         self.watermark_input.setPlaceholderText("watermark")
         self.watermark_layout.addWidget(self.watermark_input)
@@ -53,10 +56,12 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_layout.addWidget(self.watermark_size_input)
 
         self.preview_watermark_btn = QtWidgets.QPushButton("Preview", self)
+        self.preview_watermark_btn.setDisabled(True)
         self.preview_watermark_btn.clicked.connect(self.preview_watermark)
         self.watermark_layout.addWidget(self.preview_watermark_btn)
 
         self.add_watermark_btn = QtWidgets.QPushButton("Add", self)
+        self.add_watermark_btn.setDisabled(True)
         self.add_watermark_btn.clicked.connect(self.add_watermarks)
         self.watermark_layout.addWidget(self.add_watermark_btn)
 
@@ -65,6 +70,11 @@ class MainWindow(QtWidgets.QWidget):
         self.file_paths, _ = QtWidgets.QFileDialog.getOpenFileNames(self, "Select Images", "", "Image Files (*.png *.jpg *.bmp)")
         if self.file_paths:
             self.preview_image(self.file_paths[0])
+
+        self.images_opened = True
+        self.preview_watermark_btn.setDisabled(False)
+        self.add_watermark_btn.setDisabled(False)
+        self.rename_btn.setDisabled(False)
 
     def preview_image(self, filePath: str) -> None:
         pixmap = QtGui.QPixmap(filePath)
