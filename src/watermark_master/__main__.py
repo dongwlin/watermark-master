@@ -23,25 +23,42 @@ class MainWindow(QtWidgets.QWidget):
         self.open_btn.clicked.connect(self.open_images)
         layout.addWidget(self.open_btn)
 
-        watermark_layout = QtWidgets.QHBoxLayout()
-        self.watermark_input = QtWidgets.QLineEdit(self)
-        self.watermark_input.setPlaceholderText("watermark")
-        watermark_layout.addWidget(self.watermark_input)
+        self.setup_watermark()
 
-        self.preview_watermark_btn = QtWidgets.QPushButton("Preview", self)
-        self.preview_watermark_btn.clicked.connect(self.preview_watermark)
-        watermark_layout.addWidget(self.preview_watermark_btn)
-
-        self.add_watermark_btn = QtWidgets.QPushButton("Add", self)
-        self.add_watermark_btn.clicked.connect(self.add_watermarks)
-        watermark_layout.addWidget(self.add_watermark_btn)
-        layout.addLayout(watermark_layout)
+        layout.addLayout(self.watermark_layout)
 
         self.rename_btn = QtWidgets.QPushButton("Rename Images", self)
         self.rename_btn.clicked.connect(self.renameImages)
         layout.addWidget(self.rename_btn)
 
         self.setLayout(layout)
+
+    def setup_watermark(self):
+        self.watermark_layout = QtWidgets.QHBoxLayout()
+
+        self.watermark_label = QtWidgets.QLabel("watermark")
+        self.watermark_layout.addWidget(self.watermark_label)
+        
+        self.watermark_input = QtWidgets.QLineEdit(self)
+        self.watermark_input.setPlaceholderText("watermark")
+        self.watermark_layout.addWidget(self.watermark_input)
+
+        self.watermark_size_label = QtWidgets.QLabel("size", self)
+        self.watermark_layout.addWidget(self.watermark_size_label)
+
+        self.watermark_size_input = QtWidgets.QLineEdit(self)
+        watermark_size_validator = QtGui.QDoubleValidator(0, 1000, 2, self.watermark_size_input)
+        self.watermark_size_input.setValidator(watermark_size_validator)
+        self.watermark_size_input.setText("20")
+        self.watermark_layout.addWidget(self.watermark_size_input)
+
+        self.preview_watermark_btn = QtWidgets.QPushButton("Preview", self)
+        self.preview_watermark_btn.clicked.connect(self.preview_watermark)
+        self.watermark_layout.addWidget(self.preview_watermark_btn)
+
+        self.add_watermark_btn = QtWidgets.QPushButton("Add", self)
+        self.add_watermark_btn.clicked.connect(self.add_watermarks)
+        self.watermark_layout.addWidget(self.add_watermark_btn)
 
 
     def open_images(self) -> None:
@@ -62,7 +79,8 @@ class MainWindow(QtWidgets.QWidget):
     def add_watermark(self, img_path: str) -> ImageFile.ImageFile:
         image = Image.open(img_path)
         draw = ImageDraw.Draw(image)
-        font = ImageFont.load_default(20)
+        font_size = float(self.watermark_size_input.text())
+        font = ImageFont.load_default(font_size)
         text = self.watermark_input.text()
         draw.text((10, 10), text, font=font, fill=(255, 255, 255))
         return image
