@@ -44,6 +44,11 @@ class MainWindow(QtWidgets.QWidget):
 
         self.watermark_input = QtWidgets.QLineEdit(self)
         self.watermark_input.setPlaceholderText("watermark")
+        self.watermark_input.textChanged.connect(
+            lambda: self.disabled_watermark_btns(
+                not self.images_opened and self.watermark_input.text() == ""
+            )
+        )
         self.watermark_layout.addWidget(self.watermark_input)
 
         self.watermark_size_label = QtWidgets.QLabel("size", self)
@@ -80,9 +85,13 @@ class MainWindow(QtWidgets.QWidget):
             self.preview_image(self.file_paths[0])
 
         self.images_opened = True
-        self.preview_watermark_btn.setDisabled(False)
-        self.add_watermark_btn.setDisabled(False)
+        if self.watermark_input.text():
+            self.disabled_watermark_btns(False)
         self.rename_btn.setDisabled(False)
+
+    def disabled_watermark_btns(self, enabled: bool) -> None:
+        self.preview_watermark_btn.setDisabled(enabled)
+        self.add_watermark_btn.setDisabled(enabled)
 
     def preview_image(self, filePath: str) -> None:
         pixmap = QtGui.QPixmap(filePath)
@@ -119,6 +128,7 @@ class MainWindow(QtWidgets.QWidget):
             new_file_name = f"{file_name}_Watermark{file_extension}"
             new_file_path = self.create_new_file_path(img_path, new_file_name)
             image.save(new_file_path)
+        QtWidgets.QMessageBox.information(self, "Add Watermark", "Successful")
 
     def extract_file_name_and_ext(self, filePath: str) -> tuple[str, str]:
         _, file_name = os.path.split(filePath)
