@@ -147,6 +147,7 @@ class MainWindow(QtWidgets.QWidget):
             newFilePath = self.create_new_file_path(file_path, newFileName)
             os.rename(file_path, newFilePath)
             self.file_paths[i] = newFilePath
+        QtWidgets.QMessageBox.information(self, "Rename", "Successful")
 
 
 def main():
