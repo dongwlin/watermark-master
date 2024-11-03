@@ -21,20 +21,20 @@ class MainWindow(QtWidgets.QWidget):
         self.preview_label = QtWidgets.QLabel(self)
         layout.addWidget(self.preview_label)
 
-        self.open_btn = QtWidgets.QPushButton("Open Images", self)
-        self.open_btn.clicked.connect(self.open_images)
+        self.setup_open_btn()
         layout.addWidget(self.open_btn)
 
         self.setup_watermark()
-
         layout.addLayout(self.watermark_layout)
 
-        self.rename_btn = QtWidgets.QPushButton("Rename Images", self)
-        self.rename_btn.setDisabled(True)
-        self.rename_btn.clicked.connect(self.renameImages)
+        self.setup_rename_btn()
         layout.addWidget(self.rename_btn)
 
         self.setLayout(layout)
+
+    def setup_open_btn(self):
+        self.open_btn = QtWidgets.QPushButton("Open Images", self)
+        self.open_btn.clicked.connect(self.open_images)
 
     def setup_watermark(self):
         self.watermark_layout = QtWidgets.QHBoxLayout()
@@ -66,6 +66,11 @@ class MainWindow(QtWidgets.QWidget):
         self.add_watermark_btn.setDisabled(True)
         self.add_watermark_btn.clicked.connect(self.add_watermarks)
         self.watermark_layout.addWidget(self.add_watermark_btn)
+
+    def setup_rename_btn(self):
+        self.rename_btn = QtWidgets.QPushButton("Rename Images", self)
+        self.rename_btn.setDisabled(True)
+        self.rename_btn.clicked.connect(self.renameImages)
 
     def open_images(self) -> None:
         self.file_paths, _ = QtWidgets.QFileDialog.getOpenFileNames(
