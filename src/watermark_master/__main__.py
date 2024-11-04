@@ -21,6 +21,9 @@ class MainWindow(QtWidgets.QWidget):
         self.preview_label = QtWidgets.QLabel(self)
         layout.addWidget(self.preview_label)
 
+        self.setup_images_info()
+        layout.addWidget(self.images_info_label)
+
         self.setup_open_btn()
         layout.addWidget(self.open_btn)
 
@@ -31,6 +34,16 @@ class MainWindow(QtWidgets.QWidget):
         layout.addWidget(self.rename_btn)
 
         self.setLayout(layout)
+
+        print(self.watermark_input.size())
+
+    def setup_images_info(self):
+        self.images_info_label = QtWidgets.QLabel("total: 0", self)
+        self.images_info_label.setFixedHeight(30)
+
+    def update_images_info(self, count: int) -> None:
+        self.images_info_label.setText(f"total: {count}")
+        self.images_info_label.adjustSize()
 
     def setup_open_btn(self):
         self.open_btn = QtWidgets.QPushButton("Open Images", self)
@@ -83,6 +96,7 @@ class MainWindow(QtWidgets.QWidget):
         )
         if self.file_paths:
             self.preview_image(self.file_paths[0])
+            self.update_images_info(len(self.file_paths))
 
         self.images_opened = True
         if self.watermark_input.text():
