@@ -1,13 +1,13 @@
 import os
 from PySide6 import QtWidgets, QtGui, QtCore
-from backend import ImageProcessor, fileops
+from backend import WatermarkAdder, fileops
 from PIL import ImageQt
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.image_processor = ImageProcessor()
+        self.watermark_adder = WatermarkAdder()
 
         self.setWindowTitle("Watermark Master")
         self.resize(800, 600)
@@ -120,7 +120,7 @@ class MainWindow(QtWidgets.QWidget):
     def preview_watermark(self):
         text = self.watermark_input.text()
         font_size = float(self.watermark_size_input.text())
-        image = self.image_processor.add_watermark(self.file_paths[0], text, font_size)
+        image = self.watermark_adder.add_watermark(self.file_paths[0], text, font_size)
         pixmap = ImageQt.toqpixmap(image)
         self.preview_label.setPixmap(
             pixmap.scaled(
@@ -133,7 +133,7 @@ class MainWindow(QtWidgets.QWidget):
         text = self.watermark_input.text()
         font_size = float(self.watermark_size_input.text())
         for img_path in self.file_paths:
-            image = self.image_processor.add_watermark(img_path, text, font_size)
+            image = self.watermark_adder.add_watermark(img_path, text, font_size)
             file_name, file_extension = fileops.extract_file_name_and_ext(img_path)
             new_file_name = f"{file_name}_Watermark{file_extension}"
             new_file_path = fileops.create_new_file_path(img_path, new_file_name)

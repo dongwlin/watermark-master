@@ -1,4 +1,4 @@
-from .image_processor import ImageProcessor
+from .watermark_adder import WatermarkAdder
 from .fileops import extract_file_name_and_ext, create_new_file_path
 
-__all__ = ["ImageProcessor", "extract_file_name_and_ext", "create_new_file_path"]
+__all__ = ["WatermarkAdder", "extract_file_name_and_ext", "create_new_file_path"]

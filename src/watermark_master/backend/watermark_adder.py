@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont, ImageFile
 
-class ImageProcessor:
+class WatermarkAdder:
     def __init__(self):
         self.file_paths: list[str] = []
 
