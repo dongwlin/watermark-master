@@ -74,6 +74,10 @@ class MainWindow(QtWidgets.QWidget):
         )
         self.watermark_size_input.setValidator(watermark_size_validator)
         self.watermark_size_input.setText("20")
+        def handle_watermark_size_input():
+            font_size = float(self.watermark_size_input.text())
+            self.watermark_adder.set_font_size(font_size)
+        self.watermark_size_input.textEdited.connect(handle_watermark_size_input)
         self.watermark_layout.addWidget(self.watermark_size_input)
 
         self.preview_watermark_btn = QtWidgets.QPushButton("Preview", self)
@@ -119,8 +123,7 @@ class MainWindow(QtWidgets.QWidget):
 
     def preview_watermark(self):
         text = self.watermark_input.text()
-        font_size = float(self.watermark_size_input.text())
-        image = self.watermark_adder.add_watermark(self.file_paths[0], text, font_size)
+        image = self.watermark_adder.apply(self.file_paths[0], text)
         pixmap = ImageQt.toqpixmap(image)
         self.preview_label.setPixmap(
             pixmap.scaled(
@@ -131,9 +134,8 @@ class MainWindow(QtWidgets.QWidget):
 
     def add_watermarks(self):
         text = self.watermark_input.text()
-        font_size = float(self.watermark_size_input.text())
         for img_path in self.file_paths:
-            image = self.watermark_adder.add_watermark(img_path, text, font_size)
+            image = self.watermark_adder.apply(img_path, text)
             file_name, file_extension = fileops.extract_file_name_and_ext(img_path)
             new_file_name = f"{file_name}_Watermark{file_extension}"
             new_file_path = fileops.create_new_file_path(img_path, new_file_name)
