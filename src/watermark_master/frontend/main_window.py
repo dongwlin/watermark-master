@@ -60,7 +60,7 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_input.setPlaceholderText("watermark")
         self.watermark_input.textChanged.connect(
             lambda: self.disabled_watermark_btns(
-                not self.images_opened and self.watermark_input.text() == ""
+                not self.images_opened or self.watermark_input.text() == ""
             )
         )
         self.watermark_layout.addWidget(self.watermark_input)
