@@ -22,7 +22,7 @@ class MainWindow(QtWidgets.QWidget):
     def setup_ui(self) -> None:
         layout = QtWidgets.QVBoxLayout()
 
-        self.preview_label = QtWidgets.QLabel(self)
+        self.setup_preview_label()
         layout.addWidget(self.preview_label)
 
         self.setup_images_info()
@@ -39,6 +39,16 @@ class MainWindow(QtWidgets.QWidget):
 
         self.setLayout(layout)
 
+    def setup_preview_label(self):
+        self.preview_label = QtWidgets.QLabel("NONE", self)
+        self.preview_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        font = QtGui.QFont()
+        font.setPointSize(64)
+        font.setBold(True)
+        font.setItalic(True)
+        self.preview_label.setFont(font)
+        self.preview_label.setStyleSheet("color: #A9A9A9")
+        
     def setup_images_info(self):
         class ChangeImageAction(Enum):
             prev = 1
