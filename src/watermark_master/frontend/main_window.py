@@ -34,8 +34,8 @@ class MainWindow(QtWidgets.QWidget):
         self.setup_watermark()
         layout.addLayout(self.watermark_layout)
 
-        self.setup_rename_btn()
-        layout.addWidget(self.rename_btn)
+        self.setup_rename()
+        layout.addLayout(self.rename_layout)
 
         self.setLayout(layout)
 
@@ -167,10 +167,26 @@ class MainWindow(QtWidgets.QWidget):
             return False
         return True
 
-    def setup_rename_btn(self):
-        self.rename_btn = QtWidgets.QPushButton("Rename Images", self)
+    def setup_rename(self):
+        self.rename_layout = QtWidgets.QHBoxLayout()
+
+        self.rename_template_label = QtWidgets.QLabel("template", self)
+        self.rename_layout.addWidget(self.rename_template_label)
+
+        self.rename_template_input = QtWidgets.QLineEdit(self)
+        self.rename_template_input.setText("{num}")
+        def handle_rename_input():
+            if self.images_opened and self.rename_template_input.text():
+                self.rename_btn.setDisabled(False)
+            else:
+                self.rename_btn.setDisabled(True)
+        self.rename_template_input.textChanged.connect(handle_rename_input)
+        self.rename_layout.addWidget(self.rename_template_input)
+
+        self.rename_btn = QtWidgets.QPushButton("Rename", self)
         self.rename_btn.setDisabled(True)
-        self.rename_btn.clicked.connect(self.renameImages)
+        self.rename_btn.clicked.connect(self.rename_images)
+        self.rename_layout.addWidget(self.rename_btn)
 
     def open_images(self) -> None:
         self.file_paths, _ = QtWidgets.QFileDialog.getOpenFileNames(
@@ -221,10 +237,12 @@ class MainWindow(QtWidgets.QWidget):
             image.save(new_file_path)
         QtWidgets.QMessageBox.information(self, "Add Watermark", "Successful")
 
-    def renameImages(self) -> None:
+    def rename_images(self) -> None:
+        templ = self.rename_template_input.text()
+        templ = templ + "{ext}"
         for i, file_path in enumerate(self.file_paths):
             _, ext = fileops.extract_file_name_and_ext(file_path)
-            newFileName = f"new_name_{i}{ext}"
+            newFileName = templ.format(num=i, ext=ext)
             newFilePath = fileops.create_new_file_path(file_path, newFileName)
             os.rename(file_path, newFilePath)
             self.file_paths[i] = newFilePath
