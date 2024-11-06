@@ -3,6 +3,7 @@ from PySide6 import QtWidgets, QtGui, QtCore
 from backend import WatermarkAdder, fileops
 from PIL import ImageQt
 
+
 class MainWindow(QtWidgets.QWidget):
     def __init__(self) -> None:
         super().__init__()
@@ -36,8 +37,6 @@ class MainWindow(QtWidgets.QWidget):
 
         self.setLayout(layout)
 
-        print(self.watermark_input.size())
-
     def setup_images_info(self):
         self.images_info_label = QtWidgets.QLabel("total: 0", self)
         self.images_info_label.setFixedHeight(30)
@@ -56,14 +55,18 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_label = QtWidgets.QLabel("watermark")
         self.watermark_layout.addWidget(self.watermark_label)
 
-        self.watermark_input = QtWidgets.QLineEdit(self)
-        self.watermark_input.setPlaceholderText("watermark")
-        self.watermark_input.textChanged.connect(
-            lambda: self.disabled_watermark_btns(
-                not self.images_opened or self.watermark_input.text() == ""
-            )
-        )
-        self.watermark_layout.addWidget(self.watermark_input)
+        self.watermark_text_input = QtWidgets.QLineEdit(self)
+        self.watermark_text_input.setPlaceholderText("watermark")
+
+        def handle_watermark_text_input():
+            if self.check_watermark_enabled():
+                self.add_watermark_btn.setDisabled(False)
+                self.preview_watermark()
+            elif self.images_opened:
+                self.preview_image(self.file_paths[0])
+
+        self.watermark_text_input.textChanged.connect(handle_watermark_text_input)
+        self.watermark_layout.addWidget(self.watermark_text_input)
 
         self.watermark_size_label = QtWidgets.QLabel("size", self)
         self.watermark_layout.addWidget(self.watermark_size_label)
@@ -74,21 +77,29 @@ class MainWindow(QtWidgets.QWidget):
         )
         self.watermark_size_input.setValidator(watermark_size_validator)
         self.watermark_size_input.setText("20")
+
         def handle_watermark_size_input():
             font_size = float(self.watermark_size_input.text())
             self.watermark_adder.set_font_size(font_size)
+            if self.check_watermark_enabled():
+                self.preview_watermark()
+
         self.watermark_size_input.textEdited.connect(handle_watermark_size_input)
         self.watermark_layout.addWidget(self.watermark_size_input)
-
-        self.preview_watermark_btn = QtWidgets.QPushButton("Preview", self)
-        self.preview_watermark_btn.setDisabled(True)
-        self.preview_watermark_btn.clicked.connect(self.preview_watermark)
-        self.watermark_layout.addWidget(self.preview_watermark_btn)
 
         self.add_watermark_btn = QtWidgets.QPushButton("Add", self)
         self.add_watermark_btn.setDisabled(True)
         self.add_watermark_btn.clicked.connect(self.add_watermarks)
         self.watermark_layout.addWidget(self.add_watermark_btn)
+
+    def check_watermark_enabled(self) -> bool:
+        if not self.images_opened:
+            return False
+        if self.watermark_text_input.text() == "":
+            return False
+        if self.watermark_size_input.text() == "":
+            return False
+        return True
 
     def setup_rename_btn(self):
         self.rename_btn = QtWidgets.QPushButton("Rename Images", self)
@@ -104,13 +115,10 @@ class MainWindow(QtWidgets.QWidget):
             self.update_images_info(len(self.file_paths))
 
         self.images_opened = True
-        if self.watermark_input.text():
-            self.disabled_watermark_btns(False)
+        if self.check_watermark_enabled():
+            self.add_watermark_btn.setDisabled(False)
+            self.preview_watermark()
         self.rename_btn.setDisabled(False)
-
-    def disabled_watermark_btns(self, enabled: bool) -> None:
-        self.preview_watermark_btn.setDisabled(enabled)
-        self.add_watermark_btn.setDisabled(enabled)
 
     def preview_image(self, filePath: str) -> None:
         pixmap = QtGui.QPixmap(filePath)
@@ -122,7 +130,7 @@ class MainWindow(QtWidgets.QWidget):
         )
 
     def preview_watermark(self):
-        text = self.watermark_input.text()
+        text = self.watermark_text_input.text()
         image = self.watermark_adder.apply(self.file_paths[0], text)
         pixmap = ImageQt.toqpixmap(image)
         self.preview_label.setPixmap(
@@ -133,7 +141,7 @@ class MainWindow(QtWidgets.QWidget):
         )
 
     def add_watermarks(self):
-        text = self.watermark_input.text()
+        text = self.watermark_text_input.text()
         for img_path in self.file_paths:
             image = self.watermark_adder.apply(img_path, text)
             file_name, file_extension = fileops.extract_file_name_and_ext(img_path)
