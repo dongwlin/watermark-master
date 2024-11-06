@@ -2,6 +2,7 @@ import os
 from PySide6 import QtWidgets, QtGui, QtCore
 from backend import WatermarkAdder, fileops
 from PIL import ImageQt
+from enum import Enum
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -9,6 +10,9 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__()
 
         self.watermark_adder = WatermarkAdder()
+        self.cur_image_index = -1
+        self.file_paths = []
+        self.images_opened = False
 
         self.setWindowTitle("Watermark Master")
         self.resize(800, 600)
@@ -18,13 +22,11 @@ class MainWindow(QtWidgets.QWidget):
     def setup_ui(self) -> None:
         layout = QtWidgets.QVBoxLayout()
 
-        self.images_opened = False
-
         self.preview_label = QtWidgets.QLabel(self)
         layout.addWidget(self.preview_label)
 
         self.setup_images_info()
-        layout.addWidget(self.images_info_label)
+        layout.addLayout(self.images_info_layout)
 
         self.setup_open_btn()
         layout.addWidget(self.open_btn)
@@ -38,12 +40,59 @@ class MainWindow(QtWidgets.QWidget):
         self.setLayout(layout)
 
     def setup_images_info(self):
-        self.images_info_label = QtWidgets.QLabel("total: 0", self)
-        self.images_info_label.setFixedHeight(30)
+        class ChangeImageAction(Enum):
+            prev = 1
+            next = 2
 
-    def update_images_info(self, count: int) -> None:
-        self.images_info_label.setText(f"total: {count}")
-        self.images_info_label.adjustSize()
+        def handle_change_image(action: ChangeImageAction):
+            max_index = len(self.file_paths) - 1
+            if action == ChangeImageAction.prev:
+                self.cur_image_index -= 1
+                if self.cur_image_index < 0:
+                    self.cur_image_index = max_index
+            elif action == ChangeImageAction.next:
+                self.cur_image_index += 1
+                if self.cur_image_index > max_index:
+                    self.cur_image_index = 0
+
+            if self.check_watermark_enabled():
+                self.preview_watermark()
+            elif self.images_opened:
+                self.preview_image()
+
+            self.update_images_current_inedx()
+
+        self.images_info_layout = QtWidgets.QHBoxLayout()
+
+        self.images_total_label = QtWidgets.QLabel("total: 0", self)
+        self.images_total_label.setFixedHeight(30)
+        self.images_info_layout.addWidget(self.images_total_label)
+
+        self.images_current_index_label = QtWidgets.QLabel("current: 0", self)
+        self.images_info_layout.addWidget(self.images_current_index_label)
+
+        self.prev_image_btn = QtWidgets.QPushButton("prev", self)
+        self.prev_image_btn.setDisabled(True)
+        self.prev_image_btn.clicked.connect(
+            lambda: handle_change_image(ChangeImageAction.prev)
+        )
+        self.images_info_layout.addWidget(self.prev_image_btn)
+
+        self.next_image_btn = QtWidgets.QPushButton("next", self)
+        self.next_image_btn.setDisabled(True)
+        self.next_image_btn.clicked.connect(
+            lambda: handle_change_image(ChangeImageAction.next)
+        )
+        self.images_info_layout.addWidget(self.next_image_btn)
+        for i in range(self.images_info_layout.count()):
+            self.images_info_layout.itemAt(i).widget().setVisible(False)
+
+    def update_images_total(self, count: int) -> None:
+        self.images_total_label.setText(f"total: {count}")
+        self.images_total_label.adjustSize()
+
+    def update_images_current_inedx(self) -> None:
+        self.images_current_index_label.setText(f"current: {self.cur_image_index}")
 
     def setup_open_btn(self):
         self.open_btn = QtWidgets.QPushButton("Open Images", self)
@@ -63,7 +112,7 @@ class MainWindow(QtWidgets.QWidget):
                 self.add_watermark_btn.setDisabled(False)
                 self.preview_watermark()
             elif self.images_opened:
-                self.preview_image(self.file_paths[0])
+                self.preview_image()
 
         self.watermark_text_input.textChanged.connect(handle_watermark_text_input)
         self.watermark_layout.addWidget(self.watermark_text_input)
@@ -111,17 +160,22 @@ class MainWindow(QtWidgets.QWidget):
             self, "Select Images", "", "Image Files (*.png *.jpg *.bmp)"
         )
         if self.file_paths:
-            self.preview_image(self.file_paths[0])
-            self.update_images_info(len(self.file_paths))
+            self.cur_image_index = 0
+            self.preview_image()
+            self.update_images_total(len(self.file_paths))
+            self.prev_image_btn.setDisabled(False)
+            self.next_image_btn.setDisabled(False)
 
         self.images_opened = True
         if self.check_watermark_enabled():
             self.add_watermark_btn.setDisabled(False)
             self.preview_watermark()
         self.rename_btn.setDisabled(False)
+        for i in range(self.images_info_layout.count()):
+            self.images_info_layout.itemAt(i).widget().setVisible(True)
 
-    def preview_image(self, filePath: str) -> None:
-        pixmap = QtGui.QPixmap(filePath)
+    def preview_image(self) -> None:
+        pixmap = QtGui.QPixmap(self.file_paths[self.cur_image_index])
         self.preview_label.setPixmap(
             pixmap.scaled(
                 self.preview_label.size(),
@@ -131,7 +185,7 @@ class MainWindow(QtWidgets.QWidget):
 
     def preview_watermark(self):
         text = self.watermark_text_input.text()
-        image = self.watermark_adder.apply(self.file_paths[0], text)
+        image = self.watermark_adder.apply(self.file_paths[self.cur_image_index], text)
         pixmap = ImageQt.toqpixmap(image)
         self.preview_label.setPixmap(
             pixmap.scaled(
