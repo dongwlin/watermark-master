@@ -113,6 +113,7 @@ class MainWindow(QtWidgets.QWidget):
                 self.preview_watermark()
             elif self.images_opened:
                 self.preview_image()
+                self.add_watermark_btn.setDisabled(True)
 
         self.watermark_text_input.textChanged.connect(handle_watermark_text_input)
         self.watermark_layout.addWidget(self.watermark_text_input)
