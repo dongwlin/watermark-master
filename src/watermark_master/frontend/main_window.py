@@ -139,9 +139,15 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_size_input.setText("20")
 
         def handle_watermark_size_input():
-            font_size = float(self.watermark_size_input.text())
+            size_str = self.watermark_size_input.text()
+            if not size_str:
+                self.add_watermark_btn.setDisabled(True)
+                self.preview_image()
+                return
+            font_size = float(size_str)
             self.watermark_adder.set_font_size(font_size)
             if self.check_watermark_enabled():
+                self.add_watermark_btn.setDisabled(False)
                 self.preview_watermark()
 
         self.watermark_size_input.textEdited.connect(handle_watermark_size_input)
