@@ -24,11 +24,33 @@ class WatermarkManager:
     def apply_to_image(self, image_path: str) -> ImageFile.ImageFile:
         return self.watermark_adder.apply(image_path, self.text)
 
+
+class ImageRenamer:
+    def __init__(self, template="{num}{ext}") -> None:
+        self.template = template
+
+    def set_template(self, template: str) -> None:
+        if not template.endswith("{ext}"):
+            template += "{ext}"
+        self.template = template
+
+    def rename(self, file_paths: list[str]) -> list[str]:
+        new_file_paths: list[str] = []
+        for i, file_path in enumerate(file_paths):
+            _, ext = fileops.extract_file_name_and_ext(file_path)
+            new_file_name = self.template.format(num=i, ext=ext)
+            new_file_path = fileops.create_new_file_path(file_path, new_file_name)
+            new_file_paths.append(new_file_path)
+            os.rename(file_path, new_file_path)
+        return new_file_paths
+
+
 class MainWindow(QtWidgets.QWidget):
     def __init__(self) -> None:
         super().__init__()
 
         self.watermark_manager = WatermarkManager(WatermarkAdder())
+        self.image_renamer = ImageRenamer()
         self.cur_image_index = -1
         self.file_paths = []
         self.images_opened = False
@@ -67,7 +89,7 @@ class MainWindow(QtWidgets.QWidget):
         font.setItalic(True)
         self.preview_label.setFont(font)
         self.preview_label.setStyleSheet("color: #A9A9A9")
-        
+
     def setup_images_info(self):
         class ChangeImageAction(Enum):
             prev = 1
@@ -187,11 +209,15 @@ class MainWindow(QtWidgets.QWidget):
 
         self.rename_template_input = QtWidgets.QLineEdit(self)
         self.rename_template_input.setText("{num}")
+
         def handle_rename_input():
-            if self.images_opened and self.rename_template_input.text():
+            template = self.rename_template_input.text()
+            self.image_renamer.set_template(template)
+            if self.images_opened and template:
                 self.rename_btn.setDisabled(False)
             else:
                 self.rename_btn.setDisabled(True)
+
         self.rename_template_input.textChanged.connect(handle_rename_input)
         self.rename_layout.addWidget(self.rename_template_input)
 
@@ -229,7 +255,9 @@ class MainWindow(QtWidgets.QWidget):
         )
 
     def preview_watermark(self):
-        image = self.watermark_manager.apply_to_image(self.file_paths[self.cur_image_index])
+        image = self.watermark_manager.apply_to_image(
+            self.file_paths[self.cur_image_index]
+        )
         pixmap = ImageQt.toqpixmap(image)
         self.preview_label.setPixmap(
             pixmap.scaled(
@@ -248,12 +276,5 @@ class MainWindow(QtWidgets.QWidget):
         QtWidgets.QMessageBox.information(self, "Add Watermark", "Successful")
 
     def rename_images(self) -> None:
-        templ = self.rename_template_input.text()
-        templ = templ + "{ext}"
-        for i, file_path in enumerate(self.file_paths):
-            _, ext = fileops.extract_file_name_and_ext(file_path)
-            newFileName = templ.format(num=i, ext=ext)
-            newFilePath = fileops.create_new_file_path(file_path, newFileName)
-            os.rename(file_path, newFilePath)
-            self.file_paths[i] = newFilePath
+        self.file_paths = self.image_renamer.rename(self.file_paths)
         QtWidgets.QMessageBox.information(self, "Rename", "Successful")
