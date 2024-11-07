@@ -48,36 +48,30 @@ class ImageRenamer:
 class MainWindow(QtWidgets.QWidget):
     def __init__(self) -> None:
         super().__init__()
-
+        self.init_ui()
         self.watermark_manager = WatermarkManager(WatermarkAdder())
         self.image_renamer = ImageRenamer()
         self.cur_image_index = -1
         self.file_paths = []
         self.images_opened = False
 
+    def init_ui(self) -> None:
         self.setWindowTitle("Watermark Master")
         self.resize(800, 600)
+        self.setup_layout()
 
-        self.setup_ui()
-
-    def setup_ui(self) -> None:
+    def setup_layout(self):
         layout = QtWidgets.QVBoxLayout()
-
         self.setup_preview_label()
         layout.addWidget(self.preview_label)
-
         self.setup_images_info()
         layout.addLayout(self.images_info_layout)
-
         self.setup_open_btn()
         layout.addWidget(self.open_btn)
-
         self.setup_watermark()
         layout.addLayout(self.watermark_layout)
-
         self.setup_rename()
         layout.addLayout(self.rename_layout)
-
         self.setLayout(layout)
 
     def setup_preview_label(self):
