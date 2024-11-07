@@ -1,15 +1,34 @@
 import os
 from PySide6 import QtWidgets, QtGui, QtCore
 from backend import WatermarkAdder, fileops
-from PIL import ImageQt
+from PIL import ImageQt, ImageFile
 from enum import Enum
 
+
+class WatermarkManager:
+    def __init__(self, watermark_adder: WatermarkAdder) -> None:
+        self.watermark_adder = watermark_adder
+        self.text = ""
+        self.font_size = 20
+
+    def set_text(self, text: str) -> None:
+        self.text = text
+
+    def set_font_size(self, size: float) -> None:
+        self.font_size = size
+        self.watermark_adder.set_font_size(size)
+
+    def is_enabled(self) -> bool:
+        return bool(self.text) and bool(self.font_size)
+
+    def apply_to_image(self, image_path: str) -> ImageFile.ImageFile:
+        return self.watermark_adder.apply(image_path, self.text)
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.watermark_adder = WatermarkAdder()
+        self.watermark_manager = WatermarkManager(WatermarkAdder())
         self.cur_image_index = -1
         self.file_paths = []
         self.images_opened = False
@@ -145,7 +164,7 @@ class MainWindow(QtWidgets.QWidget):
                 self.preview_image()
                 return
             font_size = float(size_str)
-            self.watermark_adder.set_font_size(font_size)
+            self.watermark_manager.set_font_size(font_size)
             if self.check_watermark_enabled():
                 self.add_watermark_btn.setDisabled(False)
                 self.preview_watermark()
@@ -217,8 +236,7 @@ class MainWindow(QtWidgets.QWidget):
         )
 
     def preview_watermark(self):
-        text = self.watermark_text_input.text()
-        image = self.watermark_adder.apply(self.file_paths[self.cur_image_index], text)
+        image = self.watermark_manager.apply_to_image(self.file_paths[self.cur_image_index])
         pixmap = ImageQt.toqpixmap(image)
         self.preview_label.setPixmap(
             pixmap.scaled(
@@ -230,7 +248,7 @@ class MainWindow(QtWidgets.QWidget):
     def add_watermarks(self):
         text = self.watermark_text_input.text()
         for img_path in self.file_paths:
-            image = self.watermark_adder.apply(img_path, text)
+            image = self.watermark_manager.apply_to_image(img_path)
             file_name, file_extension = fileops.extract_file_name_and_ext(img_path)
             new_file_name = f"{file_name}_Watermark{file_extension}"
             new_file_path = fileops.create_new_file_path(img_path, new_file_name)
