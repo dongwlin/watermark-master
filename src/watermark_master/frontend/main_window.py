@@ -84,7 +84,7 @@ class MainWindow(QtWidgets.QWidget):
                 if self.cur_image_index > max_index:
                     self.cur_image_index = 0
 
-            if self.check_watermark_enabled():
+            if self.images_opened and self.watermark_manager.is_enabled():
                 self.preview_watermark()
             elif self.images_opened:
                 self.preview_image()
@@ -137,7 +137,8 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_text_input.setPlaceholderText("watermark")
 
         def handle_watermark_text_input():
-            if self.check_watermark_enabled():
+            self.watermark_manager.set_text(self.watermark_text_input.text())
+            if self.images_opened and self.watermark_manager.is_enabled():
                 self.add_watermark_btn.setDisabled(False)
                 self.preview_watermark()
             elif self.images_opened:
@@ -160,12 +161,13 @@ class MainWindow(QtWidgets.QWidget):
         def handle_watermark_size_input():
             size_str = self.watermark_size_input.text()
             if not size_str:
+                self.watermark_manager.set_font_size(0)
                 self.add_watermark_btn.setDisabled(True)
                 self.preview_image()
                 return
             font_size = float(size_str)
             self.watermark_manager.set_font_size(font_size)
-            if self.check_watermark_enabled():
+            if self.images_opened and self.watermark_manager.is_enabled():
                 self.add_watermark_btn.setDisabled(False)
                 self.preview_watermark()
 
@@ -176,15 +178,6 @@ class MainWindow(QtWidgets.QWidget):
         self.add_watermark_btn.setDisabled(True)
         self.add_watermark_btn.clicked.connect(self.add_watermarks)
         self.watermark_layout.addWidget(self.add_watermark_btn)
-
-    def check_watermark_enabled(self) -> bool:
-        if not self.images_opened:
-            return False
-        if self.watermark_text_input.text() == "":
-            return False
-        if self.watermark_size_input.text() == "":
-            return False
-        return True
 
     def setup_rename(self):
         self.rename_layout = QtWidgets.QHBoxLayout()
@@ -219,7 +212,7 @@ class MainWindow(QtWidgets.QWidget):
             self.next_image_btn.setDisabled(False)
 
         self.images_opened = True
-        if self.check_watermark_enabled():
+        if self.watermark_manager.is_enabled():
             self.add_watermark_btn.setDisabled(False)
             self.preview_watermark()
         self.rename_btn.setDisabled(False)
@@ -246,7 +239,6 @@ class MainWindow(QtWidgets.QWidget):
         )
 
     def add_watermarks(self):
-        text = self.watermark_text_input.text()
         for img_path in self.file_paths:
             image = self.watermark_manager.apply_to_image(img_path)
             file_name, file_extension = fileops.extract_file_name_and_ext(img_path)
