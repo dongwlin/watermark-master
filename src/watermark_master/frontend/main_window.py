@@ -72,8 +72,8 @@ class MainWindow(QtWidgets.QWidget):
         layout.addWidget(self.preview_label)
         self.setup_images_info()
         layout.addLayout(self.images_info_layout)
-        self.setup_open_btn()
-        layout.addWidget(self.open_btn)
+        self.setup_navigation_bar()
+        layout.addLayout(self.navigation_bar_layout)
         self.setup_watermark()
         layout.addLayout(self.watermark_layout)
         self.setup_rename()
@@ -134,21 +134,9 @@ class MainWindow(QtWidgets.QWidget):
         self.images_info_layout.addWidget(self.images_total_label)
 
         self.images_current_index_label = QtWidgets.QLabel("current: 0", self)
+        self.images_current_index_label.setFixedHeight(30)
         self.images_info_layout.addWidget(self.images_current_index_label)
 
-        self.prev_image_btn = QtWidgets.QPushButton("prev", self)
-        self.prev_image_btn.setDisabled(True)
-        self.prev_image_btn.clicked.connect(
-            lambda: self.navigate_images(self.image_navigator.PREVIOUS)
-        )
-        self.images_info_layout.addWidget(self.prev_image_btn)
-
-        self.next_image_btn = QtWidgets.QPushButton("next", self)
-        self.next_image_btn.setDisabled(True)
-        self.next_image_btn.clicked.connect(
-            lambda: self.navigate_images(self.image_navigator.NEXT)
-        )
-        self.images_info_layout.addWidget(self.next_image_btn)
         for i in range(self.images_info_layout.count()):
             self.images_info_layout.itemAt(i).widget().setVisible(False)
 
@@ -159,9 +147,31 @@ class MainWindow(QtWidgets.QWidget):
     def update_images_current_inedx(self) -> None:
         self.images_current_index_label.setText(f"current: {self.current_image_index}")
 
-    def setup_open_btn(self):
-        self.open_btn = QtWidgets.QPushButton("Open Images", self)
+    def setup_navigation_bar(self) -> None:
+        self.navigation_bar_layout = QtWidgets.QHBoxLayout()
+
+        self.open_btn = QtWidgets.QPushButton("open", self)
         self.open_btn.clicked.connect(self.open_images)
+        self.navigation_bar_layout.addWidget(self.open_btn)
+
+        self.add_btn = QtWidgets.QPushButton("add", self)
+        self.add_btn.clicked.connect(self.add_images)
+        self.add_btn.setDisabled(True)
+        self.navigation_bar_layout.addWidget(self.add_btn)
+
+        self.prev_image_btn = QtWidgets.QPushButton("prev", self)
+        self.prev_image_btn.setDisabled(True)
+        self.prev_image_btn.clicked.connect(
+            lambda: self.navigate_images(self.image_navigator.PREVIOUS)
+        )
+        self.navigation_bar_layout.addWidget(self.prev_image_btn)
+
+        self.next_image_btn = QtWidgets.QPushButton("next", self)
+        self.next_image_btn.setDisabled(True)
+        self.next_image_btn.clicked.connect(
+            lambda: self.navigate_images(self.image_navigator.NEXT)
+        )
+        self.navigation_bar_layout.addWidget(self.next_image_btn)
 
     def setup_watermark(self):
         self.watermark_layout = QtWidgets.QHBoxLayout()
@@ -248,6 +258,7 @@ class MainWindow(QtWidgets.QWidget):
             self.current_image_index = 0
             self.preview_image()
             self.update_images_total(len(self.file_paths))
+            self.add_btn.setDisabled(False)
             self.prev_image_btn.setDisabled(False)
             self.next_image_btn.setDisabled(False)
 
@@ -258,6 +269,16 @@ class MainWindow(QtWidgets.QWidget):
         self.rename_btn.setDisabled(False)
         for i in range(self.images_info_layout.count()):
             self.images_info_layout.itemAt(i).widget().setVisible(True)
+
+    def add_images(self) -> None:
+        file_paths, _ = QtWidgets.QFileDialog.getOpenFileNames(
+            self, "Select Images", "", "Image Files (*.png *.jpg *.bmp)"
+        )
+        if file_paths:
+            self.file_paths = self.file_paths + [
+                item for item in file_paths if item not in set(self.file_paths)
+            ]
+            self.update_images_total(len(self.file_paths))
 
     def add_watermarks(self):
         for img_path in self.file_paths:
