@@ -198,10 +198,6 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_layout.addWidget(self.watermark_size_label)
 
         self.watermark_size_input = QtWidgets.QLineEdit(self)
-        watermark_size_validator = QtGui.QDoubleValidator(
-            0, 1000, 2, self.watermark_size_input
-        )
-        self.watermark_size_input.setValidator(watermark_size_validator)
         self.watermark_size_input.setText("20")
 
         def handle_watermark_size_input():
