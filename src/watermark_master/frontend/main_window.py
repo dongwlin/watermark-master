@@ -174,10 +174,10 @@ class MainWindow(QtWidgets.QWidget):
         self.navigation_bar_layout.addWidget(self.next_image_btn)
 
     def setup_watermark(self):
-        self.watermark_layout = QtWidgets.QHBoxLayout()
+        self.watermark_layout = QtWidgets.QGridLayout()
 
         self.watermark_label = QtWidgets.QLabel("watermark")
-        self.watermark_layout.addWidget(self.watermark_label)
+        self.watermark_layout.addWidget(self.watermark_label, 0, 0, 1, 1)
 
         self.watermark_text_input = QtWidgets.QLineEdit(self)
         self.watermark_text_input.setPlaceholderText("watermark")
@@ -192,10 +192,10 @@ class MainWindow(QtWidgets.QWidget):
                 self.add_watermark_btn.setDisabled(True)
 
         self.watermark_text_input.textChanged.connect(handle_watermark_text_input)
-        self.watermark_layout.addWidget(self.watermark_text_input)
+        self.watermark_layout.addWidget(self.watermark_text_input, 0, 1, 1, 2)
 
         self.watermark_size_label = QtWidgets.QLabel("size", self)
-        self.watermark_layout.addWidget(self.watermark_size_label)
+        self.watermark_layout.addWidget(self.watermark_size_label, 0, 3, 1, 1)
 
         self.watermark_size_input = QtWidgets.QLineEdit(self)
         self.watermark_size_input.setText("20")
@@ -214,12 +214,12 @@ class MainWindow(QtWidgets.QWidget):
                 self.preview_watermark()
 
         self.watermark_size_input.textEdited.connect(handle_watermark_size_input)
-        self.watermark_layout.addWidget(self.watermark_size_input)
+        self.watermark_layout.addWidget(self.watermark_size_input, 0, 4, 1, 2)
 
         self.add_watermark_btn = QtWidgets.QPushButton("Add", self)
         self.add_watermark_btn.setDisabled(True)
         self.add_watermark_btn.clicked.connect(self.add_watermarks)
-        self.watermark_layout.addWidget(self.add_watermark_btn)
+        self.watermark_layout.addWidget(self.add_watermark_btn, 1, 0, 1, 6)
 
     def setup_rename(self):
         self.rename_layout = QtWidgets.QHBoxLayout()
