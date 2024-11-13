@@ -5,7 +5,7 @@ class WatermarkAdder:
     def __init__(self):
         self.position = (10, 10)
         self.font_size = 20
-        self.font_color = (255, 255, 255)
+        self.font_color = "#ffffff"
 
     def set_position(self, position: tuple[int, int]):
         self.position = position
@@ -13,7 +13,7 @@ class WatermarkAdder:
     def set_font_size(self, size: float):
         self.font_size = size
 
-    def set_font_color(self, color: tuple[int, int, int]):
+    def set_font_color(self, color: str):
         self.font_color = color
 
     def apply(self, img_path: str, text: str) -> ImageFile.ImageFile:

@@ -15,6 +15,7 @@ class WatermarkManager:
         self.watermark_adder = watermark_adder
         self.text = ""
         self.font_size = 20
+        self.font_color = "#ffffff"
 
     def set_text(self, text: str) -> None:
         self.text = text
@@ -23,8 +24,12 @@ class WatermarkManager:
         self.font_size = size
         self.watermark_adder.set_font_size(size)
 
+    def set_font_color(self, color: str) -> None:
+        self.font_color = color
+        self.watermark_adder.set_font_color(color)
+
     def is_enabled(self) -> bool:
-        return bool(self.text) and bool(self.font_size)
+        return bool(self.text) and bool(self.font_size) and bool(self.font_color)
 
     def apply_to_image(self, image_path: str) -> ImageFile.ImageFile:
         return self.watermark_adder.apply(image_path, self.text)
@@ -216,10 +221,29 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_size_input.textEdited.connect(handle_watermark_size_input)
         self.watermark_layout.addWidget(self.watermark_size_input, 0, 4, 1, 2)
 
+        self.watermark_color_label = QtWidgets.QLabel("color", self)
+        self.watermark_layout.addWidget(self.watermark_color_label, 1, 0, 1, 1)
+
+        self.watermark_color_input = QtWidgets.QLineEdit(self)
+        self.watermark_color_input.setText("#ffffff")
+
+        def handle_watermark_color_input():
+            color = self.watermark_color_input.text()
+            self.watermark_manager.set_font_color(color)
+            if self.images_opened and self.watermark_manager.is_enabled():
+                self.add_watermark_btn.setDisabled(False)
+                self.preview_watermark()
+            elif self.images_opened:
+                self.preview_image()
+                self.add_watermark_btn.setDisabled(True)
+
+        self.watermark_color_input.textChanged.connect(handle_watermark_color_input)
+        self.watermark_layout.addWidget(self.watermark_color_input, 1, 1, 1, 2)
+
         self.add_watermark_btn = QtWidgets.QPushButton("Add", self)
         self.add_watermark_btn.setDisabled(True)
         self.add_watermark_btn.clicked.connect(self.add_watermarks)
-        self.watermark_layout.addWidget(self.add_watermark_btn, 1, 0, 1, 6)
+        self.watermark_layout.addWidget(self.add_watermark_btn, 2, 0, 1, 6)
 
     def setup_rename(self):
         self.rename_layout = QtWidgets.QHBoxLayout()
