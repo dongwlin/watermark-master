@@ -260,6 +260,9 @@ class MainWindow(QtWidgets.QWidget):
                 y = int(y_str)
             self.watermark_manager.set_position((x, y))
 
+            if self.images_opened and self.watermark_manager.is_enabled():
+                self.preview_watermark()
+
         self.watermark_position_x_input = QtWidgets.QLineEdit(self)
         self.watermark_position_x_input.setText("10")
 
@@ -269,10 +272,7 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_position_y_input = QtWidgets.QLineEdit(self)
         self.watermark_position_y_input.setText("10")
 
-        def handle_watermark_position_y_input():
-            pass
-
-        self.watermark_position_x_input.textChanged.connect(handle_watermark_position_input)
+        self.watermark_position_y_input.textChanged.connect(handle_watermark_position_input)
         self.watermark_layout.addWidget(self.watermark_position_y_input, 1, 5, 1, 1)
 
         self.add_watermark_btn = QtWidgets.QPushButton("Add", self)
