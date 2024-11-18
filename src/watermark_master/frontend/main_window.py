@@ -187,6 +187,7 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_layout = QtWidgets.QGridLayout()
 
         self.watermark_label = QtWidgets.QLabel("watermark")
+        self.watermark_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.watermark_layout.addWidget(self.watermark_label, 0, 0, 1, 1)
 
         self.watermark_text_input = QtWidgets.QLineEdit(self)
@@ -205,6 +206,7 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_layout.addWidget(self.watermark_text_input, 0, 1, 1, 2)
 
         self.watermark_size_label = QtWidgets.QLabel("size", self)
+        self.watermark_size_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.watermark_layout.addWidget(self.watermark_size_label, 0, 3, 1, 1)
 
         self.watermark_size_input = QtWidgets.QLineEdit(self)
@@ -227,6 +229,7 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_layout.addWidget(self.watermark_size_input, 0, 4, 1, 2)
 
         self.watermark_color_label = QtWidgets.QLabel("color", self)
+        self.watermark_color_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.watermark_layout.addWidget(self.watermark_color_label, 1, 0, 1, 1)
 
         self.watermark_color_input = QtWidgets.QLineEdit(self)
@@ -246,6 +249,7 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_layout.addWidget(self.watermark_color_input, 1, 1, 1, 2)
 
         self.watermark_position_label = QtWidgets.QLabel("position", self)
+        self.watermark_position_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.watermark_layout.addWidget(self.watermark_position_label, 1, 3, 1, 1)
 
         watermark_position_input_layout = QtWidgets.QHBoxLayout()
