@@ -16,6 +16,7 @@ class WatermarkManager:
         self.text = ""
         self.font_size = 20
         self.font_color = "#ffffff"
+        self.position = (10, 10)
 
     def set_text(self, text: str) -> None:
         self.text = text
@@ -27,6 +28,10 @@ class WatermarkManager:
     def set_font_color(self, color: str) -> None:
         self.font_color = color
         self.watermark_adder.set_font_color(color)
+
+    def set_position(self, position: tuple[int, int]) -> None:
+        self.position = position
+        self.watermark_adder.set_position(position)
 
     def is_enabled(self) -> bool:
         return bool(self.text) and bool(self.font_size) and bool(self.font_color)
@@ -239,6 +244,36 @@ class MainWindow(QtWidgets.QWidget):
 
         self.watermark_color_input.textChanged.connect(handle_watermark_color_input)
         self.watermark_layout.addWidget(self.watermark_color_input, 1, 1, 1, 2)
+
+        self.watermark_position_label = QtWidgets.QLabel("position", self)
+        self.watermark_layout.addWidget(self.watermark_position_label, 1, 3, 1, 1)
+
+        def handle_watermark_position_input():
+            x_str = self.watermark_position_x_input.text()
+            y_str = self.watermark_position_y_input.text()
+            x = 0
+            y = 0
+
+            if x_str:
+                x = int(x_str)
+            if y_str:  
+                y = int(y_str)
+            self.watermark_manager.set_position((x, y))
+
+        self.watermark_position_x_input = QtWidgets.QLineEdit(self)
+        self.watermark_position_x_input.setText("10")
+
+        self.watermark_position_x_input.textChanged.connect(handle_watermark_position_input)
+        self.watermark_layout.addWidget(self.watermark_position_x_input, 1, 4, 1, 1)
+
+        self.watermark_position_y_input = QtWidgets.QLineEdit(self)
+        self.watermark_position_y_input.setText("10")
+
+        def handle_watermark_position_y_input():
+            pass
+
+        self.watermark_position_x_input.textChanged.connect(handle_watermark_position_input)
+        self.watermark_layout.addWidget(self.watermark_position_y_input, 1, 5, 1, 1)
 
         self.add_watermark_btn = QtWidgets.QPushButton("Add", self)
         self.add_watermark_btn.setDisabled(True)
