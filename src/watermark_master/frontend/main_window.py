@@ -248,6 +248,8 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_position_label = QtWidgets.QLabel("position", self)
         self.watermark_layout.addWidget(self.watermark_position_label, 1, 3, 1, 1)
 
+        watermark_position_input_layout = QtWidgets.QHBoxLayout()
+
         def handle_watermark_position_input():
             x_str = self.watermark_position_x_input.text()
             y_str = self.watermark_position_y_input.text()
@@ -267,13 +269,15 @@ class MainWindow(QtWidgets.QWidget):
         self.watermark_position_x_input.setText("10")
 
         self.watermark_position_x_input.textChanged.connect(handle_watermark_position_input)
-        self.watermark_layout.addWidget(self.watermark_position_x_input, 1, 4, 1, 1)
+        watermark_position_input_layout.addWidget(self.watermark_position_x_input)
 
         self.watermark_position_y_input = QtWidgets.QLineEdit(self)
         self.watermark_position_y_input.setText("10")
 
         self.watermark_position_y_input.textChanged.connect(handle_watermark_position_input)
-        self.watermark_layout.addWidget(self.watermark_position_y_input, 1, 5, 1, 1)
+        watermark_position_input_layout.addWidget(self.watermark_position_y_input)
+
+        self.watermark_layout.addLayout(watermark_position_input_layout, 1, 4, 1, 2)
 
         self.add_watermark_btn = QtWidgets.QPushButton("Add", self)
         self.add_watermark_btn.setDisabled(True)
